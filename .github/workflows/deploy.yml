@@ -81,7 +81,7 @@ jobs:
   deploy:
     needs: [test, build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
     
     steps:
     - name: Checkout code

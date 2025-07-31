@@ -5,12 +5,50 @@
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
-    "dev": "nodemon main.js"
+    "dev": "nodemon main.js",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "docker:build": "docker build -t bot-war-api .",
+    "docker:run": "docker run -p 3000:3000 bot-war-api",
+    "docker:dev": "docker run -p 3000:3000 -v $(pwd):/app bot-war-api npm run dev"
   },
+  "keywords": [
+    "bot",
+    "game",
+    "api",
+    "war",
+    "strategy",
+    "nodejs",
+    "express"
+  ],
   "dependencies": {
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jest": "^30.0.5",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
+  },
+    "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!node_modules/**",
+      "!coverage/**",
+      "!tests/**"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "verbose": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tchikson/bot-war-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tchikson/bot-war-api/issues"
   }
 }
