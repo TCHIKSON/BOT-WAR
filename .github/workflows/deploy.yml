@@ -90,16 +90,16 @@ jobs:
     # Déploiement sur Fly.io (alternative)
     - name: Deploy to Fly.io
       uses: superfly/flyctl-actions/setup-flyctl@master
-      if: ${{ secrets.FLY_API_TOKEN }} # Vérification si le secret est disponible
+      if: ${{FLY_API_TOKEN }} # Vérification si le secret est disponible
       env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        FLY_API_TOKEN: ${{ FLY_API_TOKEN }}
     - run: |
-        if [ -z "${{ secrets.FLY_API_TOKEN }}" ]; then
+        if [ -z "${{ FLY_API_TOKEN }}" ]; then
           echo "Fly.io API token is not set. Skipping Fly.io deployment."
         else
           flyctl deploy --remote-only
         fi
-      if: ${{ secrets.FLY_API_TOKEN }} # Vérification supplémentaire dans la commande
+      if: ${{ FLY_API_TOKEN }} # Vérification supplémentaire dans la commande
     
     # Notification de succès
     - name: Notify deployment success
