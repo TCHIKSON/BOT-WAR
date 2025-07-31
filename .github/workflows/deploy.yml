@@ -92,7 +92,7 @@ jobs:
     
     # Déploiement sur Fly.io (alternative)
     - name: Deploy to Fly.io
-      if: ${{ secrets.FLY_API_TOKEN != 'FlyV1 fm2_lJPECAAAAAAACZm0xBADpREQ6HXhyKqOjguqLCNpwrVodHRwczovL2FwaS5mbHkuaW8vdjGWAJLOABJ41x8Lk7lodHRwczovL2FwaS5mbHkuaW8vYWFhL3YxxDwXedB88b88KsxJYkXiQa4lQCMkmX/X2mumqQ5LfUslAEfX5u6kB5oBw2CrbIBo20s9XSb7Kgs7VcPDqKPETv7m3aurIaOBhf4nrX9gYSuu/hsDFPWXrW6SbeXMb+rsN/EEGhCCqe0CyQW8z2FM35PjMUdOeK0vPLfsueFus7Z+r+dRpaF+NSi5fopO6Q2SlAORgc4Ai4qjHwWRgqdidWlsZGVyH6J3Zx8BxCCdFfw38PxHUWT033wfv5h2jeak6AoVhWTmXKKm9eeP1w==,fm2_lJPETv7m3aurIaOBhf4nrX9gYSuu/hsDFPWXrW6SbeXMb+rsN/EEGhCCqe0CyQW8z2FM35PjMUdOeK0vPLfsueFus7Z+r+dRpaF+NSi5fopO6cQQbvZ9mXXe1DwB/gpsntq9xMO5aHR0cHM6Ly9hcGkuZmx5LmlvL2FhYS92MZgEks5oi+cizwAAAAEkhAVAF84AEcDsCpHOABHA7AzEEOy5xkFuTsMi8ZohemVAt+vEINm3fflJKzM/vidV1A6BTgDud52gBJMK2njUAsEtHiDV' }}
+      if: ${{ secrets.FLY_API_TOKEN != '' }}
       uses: superfly/flyctl-actions/setup-flyctl@master
       env:
         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
