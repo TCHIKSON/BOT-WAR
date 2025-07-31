@@ -1,0 +1,132 @@
+name: Deploy Bot-War API
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Generate coverage report
+      run: npm run test:coverage || npm test -- --coverage
+      
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to Docker Hub
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ secrets.DOCKER_USERNAME }}/bot-war-api
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    # Déploiement sur Railway
+    - name: Deploy to Railway
+      if: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        curl -fsSL https://railway.app/install.sh | sh
+        railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        railway up --detach
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    
+    # Déploiement sur Render (alternative)
+    - name: Deploy to Render
+      if: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      run: |
+        curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+    
+    # Déploiement sur Fly.io (alternative)
+    - name: Deploy to Fly.io
+      if: ${{ secrets.FLY_API_TOKEN }}
+      uses: superfly/flyctl-actions/setup-flyctl@master
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    - run: flyctl deploy --remote-only
+      if: ${{ secrets.FLY_API_TOKEN }}
+      
+    # Déploiement sur Heroku (alternative)
+    - name: Deploy to Heroku
+      if: ${{ secrets.HEROKU_API_KEY }}
+      uses: akhileshns/heroku-deploy@v3.12.14
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        usedocker: true
+        
+    # Notification de succès
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "🚀 Déploiement réussi!"
+        echo "✅ Tests passés"
+        echo "🐳 Image Docker construite"
+        echo "🌐 Application déployée"
