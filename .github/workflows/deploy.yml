@@ -87,40 +87,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    # Déploiement sur Railway
-    - name: Deploy to Railway
-      if: ${{ secrets.RAILWAY_TOKEN }}
-      run: |
-        curl -fsSL https://railway.app/install.sh | sh
-        railway login --token ${{ secrets.RAILWAY_TOKEN }}
-        railway up --detach
-      env:
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-    
-    # Déploiement sur Render (alternative)
-    - name: Deploy to Render
-      if: ${{ secrets.RENDER_DEPLOY_HOOK }}
-      run: |
-        curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+ 
+ 
     
     # Déploiement sur Fly.io (alternative)
     - name: Deploy to Fly.io
-      if: ${{ secrets.FLY_API_TOKEN }}
+      if: ${{ secrets.FLY_API_TOKEN != 'FlyV1 fm2_lJPECAAAAAAACZm0xBADpREQ6HXhyKqOjguqLCNpwrVodHRwczovL2FwaS5mbHkuaW8vdjGWAJLOABJ41x8Lk7lodHRwczovL2FwaS5mbHkuaW8vYWFhL3YxxDwXedB88b88KsxJYkXiQa4lQCMkmX/X2mumqQ5LfUslAEfX5u6kB5oBw2CrbIBo20s9XSb7Kgs7VcPDqKPETv7m3aurIaOBhf4nrX9gYSuu/hsDFPWXrW6SbeXMb+rsN/EEGhCCqe0CyQW8z2FM35PjMUdOeK0vPLfsueFus7Z+r+dRpaF+NSi5fopO6Q2SlAORgc4Ai4qjHwWRgqdidWlsZGVyH6J3Zx8BxCCdFfw38PxHUWT033wfv5h2jeak6AoVhWTmXKKm9eeP1w==,fm2_lJPETv7m3aurIaOBhf4nrX9gYSuu/hsDFPWXrW6SbeXMb+rsN/EEGhCCqe0CyQW8z2FM35PjMUdOeK0vPLfsueFus7Z+r+dRpaF+NSi5fopO6cQQbvZ9mXXe1DwB/gpsntq9xMO5aHR0cHM6Ly9hcGkuZmx5LmlvL2FhYS92MZgEks5oi+cizwAAAAEkhAVAF84AEcDsCpHOABHA7AzEEOy5xkFuTsMi8ZohemVAt+vEINm3fflJKzM/vidV1A6BTgDud52gBJMK2njUAsEtHiDV' }}
       uses: superfly/flyctl-actions/setup-flyctl@master
       env:
         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
     - run: flyctl deploy --remote-only
-      if: ${{ secrets.FLY_API_TOKEN }}
+      if: ${{ secrets.FLY_API_TOKEN != '' }}
       
-    # Déploiement sur Heroku (alternative)
-    - name: Deploy to Heroku
-      if: ${{ secrets.HEROKU_API_KEY }}
-      uses: akhileshns/heroku-deploy@v3.12.14
-      with:
-        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-        heroku_email: ${{ secrets.HEROKU_EMAIL }}
-        usedocker: true
+   
         
     # Notification de succès
     - name: Notify deployment success
