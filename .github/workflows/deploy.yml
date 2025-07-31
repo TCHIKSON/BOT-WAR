@@ -86,21 +86,21 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
- 
- 
-    
+
     # Déploiement sur Fly.io (alternative)
     - name: Deploy to Fly.io
-      if: ${{ secrets.FLY_API_TOKEN != '' }}
       uses: superfly/flyctl-actions/setup-flyctl@master
+      if: ${{ secrets.FLY_API_TOKEN }} # Vérification si le secret est disponible
       env:
         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-    - run: flyctl deploy --remote-only
-      if: ${{ secrets.FLY_API_TOKEN != '' }}
-      
-   
-        
+    - run: |
+        if [ -z "${{ secrets.FLY_API_TOKEN }}" ]; then
+          echo "Fly.io API token is not set. Skipping Fly.io deployment."
+        else
+          flyctl deploy --remote-only
+        fi
+      if: ${{ secrets.FLY_API_TOKEN }} # Vérification supplémentaire dans la commande
+    
     # Notification de succès
     - name: Notify deployment success
       if: success()
