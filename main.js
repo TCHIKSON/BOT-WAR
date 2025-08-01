@@ -10,15 +10,17 @@ const PORT = process.env.PORT || 3001;
 
 const corsOptions = {
   origin: [
-    'https://bot.gogokodo.com',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
+    "https://bot.gogokodo.com",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+    "null", // ← AJOUTÉ pour les fichiers HTML locaux (file://)
+    undefined,
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -26,22 +28,23 @@ app.use(express.json());
 
 // ROUTE UNIQUE : /action pour GET et POST
 app.get("/action", bombLimit, actionController.getAction);
-app.post("/action", bombLimit, actionController.getAction);  // ← AJOUTÉ
+app.post("/action", bombLimit, actionController.getAction); // ← AJOUTÉ
 
 app.get("/", (req, res) => {
   res.json({
     message: "Bot-War API is running!",
-    version: "2.0.0",  // ← Mis à jour
+    version: "2.0.0", // ← Mis à jour
     endpoints: {
-      action: "GET/POST /action - Route unique pour toutes les opérations"
+      action: "GET/POST /action - Route unique pour toutes les opérations",
     },
     usage: {
       "Action normale": "GET /action",
       "Action avec paramètres": "GET /action?action=BOMB&move=UP",
-      "Ajouter action manuelle": "POST /action { \"manualAction\": true, \"action\": \"BOMB\", \"move\": \"UP\" }",
+      "Ajouter action manuelle":
+        'POST /action { "manualAction": true, "action": "BOMB", "move": "UP" }',
       "Voir statut": "GET /action?status=true",
-      "Vider queue": "POST /action { \"clearQueue\": true }",
-      "Reset bot": "POST /action { \"reset\": true }"
+      "Vider queue": 'POST /action { "clearQueue": true }',
+      "Reset bot": 'POST /action { "reset": true }',
     },
     timestamp: new Date().toISOString(),
   });
