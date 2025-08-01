@@ -7,9 +7,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const corsOptions = {
+  origin: [
+    'https://bot.gogokodo.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/action", bombLimit, actionController.getAction);
+
 
 app.get("/", (req, res) => {
   res.json({
