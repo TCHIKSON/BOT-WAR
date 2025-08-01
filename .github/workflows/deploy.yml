@@ -82,40 +82,36 @@ jobs:
     needs: [test, build]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Setup flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      # Déploiement sur Fly.io (alternative)
-      - name: Deploy to Fly.io
-        uses: superfly/flyctl-actions/setup-flyctl@master
+        uses: superfly/flyctl-actions/setup-flyctl@v1.3
         with:
-          version: "latest"
+          version: latest
 
-      - name: Check if FlyAPI token is set
+      - name: Check if FLY_API_TOKEN is set
         run: |
           if [ -z "${{ secrets.FLY_API_TOKEN }}" ]; then
-            echo "FlyAPI secret is not set. Skipping Fly.io deployment."
-            exit 1  # Si le secret n'est pas trouvé, on arrête l'exécution
+            echo "❌ FLY_API_TOKEN secret is not set. Please add it to GitHub secrets."
+            exit 1
           else
-            echo "FlyAPI token is set. Proceeding with deployment."
+            echo "✅ FLY_API_TOKEN is configured."
           fi
 
       - name: Deploy to Fly.io
-        run: |
-          flyctl auth login --access-token ${{ secrets.FLY_API_TOKEN }}  # Authentifier avec le token FlyAPI
-          flyctl deploy --remote-only  # Déployer sur Fly.io en utilisant le token
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      # Notification de succès
       - name: Notify deployment success
         if: success()
         run: |
           echo "🚀 Déploiement réussi!"
           echo "✅ Tests passés"
           echo "🐳 Image Docker construite"
-          echo "🌐 Application déployée"
+          echo "🌐 Application déployée sur Fly.io"
+          echo "🔗 URL: https://bot-war-api-tchikson.fly.dev"
