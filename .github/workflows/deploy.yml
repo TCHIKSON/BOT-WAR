@@ -105,7 +105,7 @@ jobs:
 
       - name: Deploy to Fly.io
         run: |
-          flyctl auth login --token ${{ secrets.FLY_API_TOKEN }}  # Authentifier avec le token FlyAPI
+          flyctl auth login --access-token ${{ secrets.FLY_API_TOKEN }}  # Authentifier avec le token FlyAPI
           flyctl deploy --remote-only  # Déployer sur Fly.io en utilisant le token
 
       # Notification de succès
