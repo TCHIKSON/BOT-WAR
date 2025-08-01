@@ -23,7 +23,6 @@ exports.getAction = async (req, res) => {
     res.status(200).json({
       move: result.move,
       action: result.action,
-      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error("Erreur dans actionController.getAction:", error);
