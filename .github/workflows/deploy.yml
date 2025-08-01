@@ -60,7 +60,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/bot-war-api
+          images: ${{ secrets.DOCKER_USERNAME }}/bot-war-speed
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -73,7 +73,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/bot-war-api:dev
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -82,10 +82,14 @@ jobs:
     needs: [test, build]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Setup flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
       # Déploiement sur Fly.io (alternative)
       - name: Deploy to Fly.io
