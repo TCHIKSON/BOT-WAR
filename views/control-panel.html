@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Bot-War Control Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .connection-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .connection-status.connected {
+            background: rgba(0, 184, 148, 0.2);
+            color: #00b894;
+            border: 2px solid #00b894;
+        }
+        
+        .connection-status.disconnected {
+            background: rgba(255, 119, 117, 0.2);
+            color: #ff7675;
+            border: 2px solid #ff7675;
+        }
+        
+        .content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .panel {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        
+        .status {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+        }
+        
+        .status h2 {
+            color: white;
+        }
+        
+        .toggle-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.auto {
+            background: #00b894;
+            color: white;
+        }
+        
+        .toggle-btn.manual {
+            background: #fd79a8;
+            color: white;
+        }
+        
+        .toggle-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .move-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        
+        .action-btn, .move-btn {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn.bomb { border-color: #ff4757; color: #ff4757; }
+        .action-btn.collect { border-color: #2ed573; color: #2ed573; }
+        .action-btn.none { border-color: #747d8c; color: #747d8c; }
+        
+        .action-btn.selected, .move-btn.selected {
+            background: #333;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .move-btn.up { grid-column: 2; }
+        .move-btn.left { grid-column: 1; grid-row: 2; }
+        .move-btn.stay { grid-column: 2; grid-row: 2; background: #f1f2f6; }
+        .move-btn.right { grid-column: 3; grid-row: 2; }
+        .move-btn.down { grid-column: 2; grid-row: 3; }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .queue-item {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .utility-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        
+        .clear-btn {
+            background: #ff7675;
+            color: white;
+        }
+        
+        .reset-btn {
+            background: #6c5ce7;
+            color: white;
+        }
+        
+        .utility-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .logs {
+            grid-column: span 2;
+            background: #2d3436;
+            color: #00b894;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .mode-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .mode-indicator.auto {
+            background: #00b894;
+            animation: pulse-green 2s infinite;
+        }
+        
+        .mode-indicator.manual {
+            background: #fd79a8;
+            animation: pulse-pink 2s infinite;
+        }
+        
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 184, 148, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 184, 148, 0); }
+        }
+        
+        @keyframes pulse-pink {
+            0% { box-shadow: 0 0 0 0 rgba(253, 121, 168, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(253, 121, 168, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(253, 121, 168, 0); }
+        }
+
+        .quick-actions {
+            grid-column: span 2;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .quick-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .quick-bomb { background: #ff4757; color: white; }
+        .quick-collect { background: #2ed573; color: white; }
+        .quick-none { background: #747d8c; color: white; }
+
+        .quick-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="connection-status" id="connection-status">🔌 Connexion...</div>
+            <h1>🤖 Bot-War Control Panel</h1>
+            <p>Contrôle total de votre bot en temps réel</p>
+        </div>
+        
+        <div class="content">
+            <div class="panel status">
+                <h2>📊 Statut en Temps Réel</h2>
+                <div id="status-info">
+                    <p><span class="mode-indicator auto" id="mode-indicator"></span>Mode: <span id="current-mode">Chargement...</span></p>
+                    <p>Queue: <span id="queue-length">0</span> actions</p>
+                    <p>Bombes utilisées: <span id="bombs-used">0</span>/3</p>
+                    <p>Dernière action: <span id="last-action">Aucune</span></p>
+                </div>
+                <button id="mode-toggle" class="toggle-btn auto" onclick="toggleToAutomatic()">
+                    🔄 Passer en Automatique
+                </button>
+            </div>
+
+            <div class="quick-actions">
+                <button class="quick-btn quick-bomb" onclick="quickAction('BOMB', 'UP')">💣 Bombe ↑</button>
+                <button class="quick-btn quick-collect" onclick="quickAction('COLLECT', 'LEFT')">💎 Collect ←</button>
+                <button class="quick-btn quick-collect" onclick="quickAction('COLLECT', 'RIGHT')">💎 Collect →</button>
+                <button class="quick-btn quick-none" onclick="quickAction('NONE', 'STAY')">⭕ None ⏸️</button>
+            </div>
+            
+            <div class="panel">
+                <h2>🎮 Contrôle Manuel Avancé</h2>
+                <div class="controls">
+                    <h3>Action:</h3>
+                    <div class="action-grid">
+                        <button class="action-btn bomb" onclick="selectAction('BOMB')">💣 BOMB</button>
+                        <button class="action-btn collect" onclick="selectAction('COLLECT')">💎 COLLECT</button>
+                        <button class="action-btn none" onclick="selectAction('NONE')">⭕ NONE</button>
+                    </div>
+                    
+                    <h3>Mouvement:</h3>
+                    <div class="move-grid">
+                        <button class="move-btn up" onclick="selectMove('UP')">⬆️</button>
+                        <button class="move-btn left" onclick="selectMove('LEFT')">⬅️</button>
+                        <button class="move-btn stay selected" onclick="selectMove('STAY')">⏸️</button>
+                        <button class="move-btn right" onclick="selectMove('RIGHT')">➡️</button>
+                        <button class="move-btn down" onclick="selectMove('DOWN')">⬇️</button>
+                    </div>
+                    
+                    <button id="send-action" class="send-btn" onclick="sendManualAction()">
+                        🚀 Envoyer Action Manuelle
+                    </button>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>📋 Queue des Actions</h2>
+                <div id="action-queue">
+                    <p>Aucune action en attente</p>
+                </div>
+                <div>
+                    <button class="utility-btn clear-btn" onclick="clearQueue()">🗑️ Vider Queue</button>
+                    <button class="utility-btn reset-btn" onclick="resetBot()">🔄 Reset Bot</button>
+                </div>
+            </div>
+            
+            <div class="logs">
+                <h2>📝 Logs Temps Réel</h2>
+                <div id="logs-content">
+                    <p>🟢 Interface de contrôle démarrée...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://bot-war-api-tchikson.fly.dev';
+        
+        let selectedAction = null;
+        let selectedMove = 'STAY';
+        let hasManualActions = false;
+        let isConnected = false;
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🚀 Interface chargée, test de connexion...');
+            updateConnectionStatus();
+            updateStatus();
+            setInterval(updateStatus, 2000);
+            selectMove('STAY');
+            
+            // Instructions d'utilisation
+            setTimeout(() => {
+                addLog('ℹ️ Actions rapides disponibles en haut');
+                addLog('ℹ️ Raccourcis: B/C/N (actions), Flèches (mouvements), Entrée (envoyer), Échap (auto)');
+            }, 1000);
+        });
+
+        // Actions rapides
+        function quickAction(action, move) {
+            sendQuickAction(action, move);
+            addLog(`⚡ Action rapide: ${action} - ${move}`);
+        }
+
+        async function sendQuickAction(action, move) {
+            try {
+                const response = await fetch(`${API_BASE}/action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        manualAction: true,
+                        action: action, 
+                        move: move 
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    addLog(`✅ ${action}-${move} ajouté (Queue: ${data.queueLength})`);
+                    updateStatus();
+                } else {
+                    addLog(`❌ Erreur: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                addLog(`❌ Erreur action rapide: ${error.message}`, 'error');
+                updateConnectionStatus();
+            }
+        }
+        
+        // Vérifier la connexion
+        async function updateConnectionStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/health`, { 
+                    method: 'GET',
+                    timeout: 5000 
+                });
+                isConnected = response.ok;
+            } catch (error) {
+                isConnected = false;
+            }
+
+            const statusEl = document.getElementById('connection-status');
+            if (isConnected) {
+                statusEl.textContent = '✅ Connecté';
+                statusEl.className = 'connection-status connected';
+            } else {
+                statusEl.textContent = '❌ Déconnecté';
+                statusEl.className = 'connection-status disconnected';
+            }
+        }
+        
+        // Passer en mode automatique
+        async function toggleToAutomatic() {
+            try {
+                addLog('🔄 Basculement vers le mode automatique...');
+                const response = await fetch(`${API_BASE}/action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clearQueue: true })
+                });
+                
+                const data = await response.json();
+                addLog('✅ Mode automatique activé');
+                updateStatus();
+            } catch (error) {
+                addLog(`❌ Erreur basculement: ${error.message}`, 'error');
+                updateConnectionStatus();
+            }
+        }
+        
+        function selectAction(action) {
+            selectedAction = action;
+            document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector(`.action-btn.${action.toLowerCase()}`).classList.add('selected');
+            updateSendButton();
+            addLog(`🎯 Action: ${action}`);
+        }
+        
+        function selectMove(move) {
+            selectedMove = move;
+            document.querySelectorAll('.move-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector(`.move-btn.${move.toLowerCase()}`).classList.add('selected');
+            updateSendButton();
+            addLog(`🎯 Mouvement: ${move}`);
+        }
+        
+        function updateSendButton() {
+            const sendBtn = document.getElementById('send-action');
+            sendBtn.disabled = !selectedAction;
+        }
+        
+        // Envoyer une action manuelle
+        async function sendManualAction() {
+            if (!selectedAction || !selectedMove) return;
+            
+            try {
+                addLog(`📤 Envoi: ${selectedAction} - ${selectedMove}`);
+                const response = await fetch(`${API_BASE}/action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        manualAction: true,
+                        action: selectedAction, 
+                        move: selectedMove 
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    addLog(`✅ Action ajoutée (Queue: ${data.queueLength})`);
+                } else {
+                    addLog(`❌ Erreur: ${data.message}`, 'error');
+                }
+                
+                // Réinitialiser la sélection d'action
+                selectedAction = null;
+                document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('selected'));
+                updateSendButton();
+                updateStatus();
+            } catch (error) {
+                addLog(`❌ Erreur envoi: ${error.message}`, 'error');
+                updateConnectionStatus();
+            }
+        }
+        
+        // Vider la queue
+        async function clearQueue() {
+            try {
+                addLog('🗑️ Vidage de la queue...');
+                const response = await fetch(`${API_BASE}/action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clearQueue: true })
+                });
+                
+                const data = await response.json();
+                addLog('✅ Queue vidée - Mode automatique');
+                updateStatus();
+            } catch (error) {
+                addLog(`❌ Erreur vidage: ${error.message}`, 'error');
+                updateConnectionStatus();
+            }
+        }
+        
+        // Reset complet
+        async function resetBot() {
+            try {
+                addLog('🔄 Reset complet...');
+                const response = await fetch(`${API_BASE}/action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reset: true })
+                });
+                
+                const data = await response.json();
+                addLog('✅ Bot réinitialisé');
+                updateStatus();
+            } catch (error) {
+                addLog(`❌ Erreur reset: ${error.message}`, 'error');
+                updateConnectionStatus();
+            }
+        }
+        
+        // Mettre à jour le statut
+        async function updateStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/action?status=true`);
+                const data = await response.json();
+                
+                if (!isConnected) {
+                    isConnected = true;
+                    updateConnectionStatus();
+                }
+                
+                hasManualActions = data.hasManualActions;
+                
+                const modeText = hasManualActions ? 'Manuel' : 'Automatique';
+                const modeClass = hasManualActions ? 'manual' : 'auto';
+                
+                document.getElementById('current-mode').textContent = modeText;
+                document.getElementById('queue-length').textContent = data.queueLength || 0;
+                document.getElementById('bombs-used').textContent = data.bombsUsed || 0;
+                document.getElementById('last-action').textContent = 
+                    data.lastAction ? `${data.lastAction.action} - ${data.lastAction.move}` : 'Aucune';
+                
+                // Indicateur de mode
+                const indicator = document.getElementById('mode-indicator');
+                indicator.className = `mode-indicator ${modeClass}`;
+                
+                // Bouton de basculement
+                const modeBtn = document.getElementById('mode-toggle');
+                if (hasManualActions) {
+                    modeBtn.textContent = '🔄 Passer en Automatique';
+                    modeBtn.className = 'toggle-btn manual';
+                    modeBtn.disabled = false;
+                } else {
+                    modeBtn.textContent = '✅ Mode Automatique';
+                    modeBtn.className = 'toggle-btn auto';
+                    modeBtn.disabled = true;
+                }
+                
+                updateQueueDisplay(data.queue);
+                updateSendButton();
+                
+            } catch (error) {
+                if (isConnected) {
+                    addLog(`⚠️ Perte de connexion`, 'error');
+                    isConnected = false;
+                    updateConnectionStatus();
+                }
+            }
+        }
+        
+        function updateQueueDisplay(queue) {
+            const queueDiv = document.getElementById('action-queue');
+            
+            if (!queue || queue.length === 0) {
+                queueDiv.innerHTML = '<p>Aucune action en attente</p>';
+                return;
+            }
+            
+            queueDiv.innerHTML = queue.map((action, index) => 
+                `<div class="queue-item">
+                    <span>#${index + 1}: ${action.action} - ${action.move}</span>
+                    <small>${new Date(action.timestamp).toLocaleTimeString()}</small>
+                </div>`
+            ).join('');
+        }
+        
+        function addLog(message, type = 'info') {
+            const logsContent = document.getElementById('logs-content');
+            const timestamp = new Date().toLocaleTimeString();
+            const logClass = type === 'error' ? 'color: #ff7675;' : 'color: #00b894;';
+            
+            logsContent.innerHTML += 
+                `<p style="${logClass}">[${timestamp}] ${message}</p>`;
+            logsContent.scrollTop = logsContent.scrollHeight;
+            
+            // Limiter à 50 lignes
+            const logs = logsContent.querySelectorAll('p');
+            if (logs.length > 50) {
+                logs[0].remove();
+            }
+        }
+        
+        // Raccourcis clavier
+        document.addEventListener('keydown', function(e) {
+            switch(e.key.toLowerCase()) {
+                case 'b': selectAction('BOMB'); break;
+                case 'c': selectAction('COLLECT'); break;
+                case 'n': selectAction('NONE'); break;
+                case 'arrowup': e.preventDefault(); selectMove('UP'); break;
+                case 'arrowdown': e.preventDefault(); selectMove('DOWN'); break;  
+                case 'arrowleft': e.preventDefault(); selectMove('LEFT'); break;
+                case 'arrowright': e.preventDefault(); selectMove('RIGHT'); break;
+                case ' ': e.preventDefault(); selectMove('STAY'); break;
+                case 'enter': e.preventDefault(); if (selectedAction) sendManualAction(); break;
+                case 'escape': e.preventDefault(); toggleToAutomatic(); break;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -20,20 +20,28 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// ROUTE UNIQUE : /action pour GET et POST
 app.get("/action", bombLimit, actionController.getAction);
-
+app.post("/action", bombLimit, actionController.getAction);  // ← AJOUTÉ
 
 app.get("/", (req, res) => {
   res.json({
     message: "Bot-War API is running!",
-    version: "1.0.0",
+    version: "2.0.0",  // ← Mis à jour
     endpoints: {
-      action: "GET/POST /action - Obtenir l'action du bot",
-      status: "GET /status - Statut du bot",
-      reset: "POST /reset - Réinitialiser le bot",
+      action: "GET/POST /action - Route unique pour toutes les opérations"
+    },
+    usage: {
+      "Action normale": "GET /action",
+      "Action avec paramètres": "GET /action?action=BOMB&move=UP",
+      "Ajouter action manuelle": "POST /action { \"manualAction\": true, \"action\": \"BOMB\", \"move\": \"UP\" }",
+      "Voir statut": "GET /action?status=true",
+      "Vider queue": "POST /action { \"clearQueue\": true }",
+      "Reset bot": "POST /action { \"reset\": true }"
     },
     timestamp: new Date().toISOString(),
   });
@@ -53,7 +61,8 @@ app.use(errorHandler);
 const server = app.listen(PORT, () => {
   console.log(`🚀 Bot-War API démarrée sur le port ${PORT}`);
   console.log(`📍 URL locale: http://localhost:${PORT}`);
-  console.log(`🎮 Route principale: http://localhost:${PORT}/action`);
+  console.log(`🎮 Route unique: http://localhost:${PORT}/action`);
+  console.log(`🎯 Mode manuel intégré dans la route principale`);
 
   if (process.env.NODE_ENV === "development") {
     console.log("🔧 Mode développement activé");
