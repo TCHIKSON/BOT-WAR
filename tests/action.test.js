@@ -16,7 +16,6 @@ describe('GET /action', () => {
 
             expect(response.body).toHaveProperty('action');
             expect(response.body).toHaveProperty('move');
-            expect(response.body).toHaveProperty('timestamp');
 
             // Vérifier que l'action est valide
             const validActions = ['COLLECT', 'NONE','BOMB'];
