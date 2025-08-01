@@ -1,9 +1,14 @@
 const actionService = require("../services/actionService");
 exports.getAction = async (req, res) => {
   try {
-    const requestedAction = req.query.action || req.body.action;
-    const requestedMove = req.query.move || req.body.move;
-    const gameState = req.body.gameState || req.query.gameState || {};
+    const requestedAction =
+      (req.query && req.query.action) || (req.body && req.body.action) || "";
+    const requestedMove =
+      (req.query && req.query.move) || (req.body && req.body.move) || "";
+    const gameState =
+      (req.body && req.body.gameState) ||
+      (req.query && req.query.gameState) ||
+      {};
     const result = actionService.getAction(
       requestedAction,
       requestedMove,

@@ -1,4 +1,7 @@
-const { incrementBombCount,getBombCount } = require("../middleware/middleware");
+const {
+  incrementBombCount,
+  getBombCount,
+} = require("../middleware/middleware");
 
 const MOVES = ["UP", "DOWN", "LEFT", "RIGHT", "STAY"];
 const ACTIONS = ["BOMB", "COLLECT", "NONE"];
@@ -8,22 +11,20 @@ const logiqueActions = (gameState = {}) => {
   const currentBombs = getBombCount();
 
   // Si on a atteint la limite de bombes, on ne peut plus en poser
-  if (currentBombs >= MAX_BOMBS) {
-    return Math.random() < 0.7 ? "COLLECT" : "NONE";
-  }
+ if (currentBombs >= MAX_BOMBS) {
+        return Math.random() < 0.7 ? "COLLECT" : "NONE";
+    }
 
   // Logique simple : 50% collect, 30% bomb, 20% none
-  if(gameState=={}){
-  const rand = Math.random();
-  if (rand < 0.5) return "COLLECT";
-  if (rand < 0.9) return "BOMB";
-  return "COLLECT";
-  }
-    return "COLLECT";
+
+    const rand = Math.random();
+    if (rand < 0.5) return "COLLECT";
+    if (rand < 0.9) return "BOMB";
+    return "NONE";
+  
 };
 
 const logiqueMoves = (gameState = {}) => {
-    
   return MOVES[Math.floor(Math.random() * MOVES.length)];
 };
 

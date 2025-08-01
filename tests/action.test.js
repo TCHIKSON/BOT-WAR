@@ -1,4 +1,14 @@
+const request = require('supertest');
+const app = require('../main');
+const actionService = require('../services/actionService');
+const { getBombCount, resetBombCount } = require('../middleware/middleware');
+
 describe('GET /action', () => {
+  // ✅ Réinitialiser le compteur de bombes avant chaque test
+  beforeEach(() => {
+    resetBombCount();
+  });
+
         it('devrait retourner une action et un mouvement valides', async () => {
             const response = await request(app)
                 .get('/action')
@@ -9,7 +19,7 @@ describe('GET /action', () => {
             expect(response.body).toHaveProperty('timestamp');
 
             // Vérifier que l'action est valide
-            const validActions = ['BOMB', 'COLLECT', 'NONE'];
+            const validActions = ['COLLECT', 'NONE','BOMB'];
             expect(validActions).toContain(response.body.action);
 
             // Vérifier que le mouvement est valide
@@ -40,7 +50,10 @@ describe('GET /action', () => {
         });
     });
 
-    describe('Limite de bombes', () => {
+describe('Limite de bombes', () => {
+  beforeEach(() => {
+    resetBombCount();
+  });
         it('devrait permettre jusqu\'à 3 bombes', async () => {
             // Poser 3 bombes
             for (let i = 0; i < 3; i++) {
