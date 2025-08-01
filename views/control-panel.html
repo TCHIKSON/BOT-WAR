@@ -271,7 +271,7 @@
         .quick-actions {
             grid-column: span 2;
             display: flex;
-            gap: 10px;
+            gap: 19px;
             justify-content: center;
             margin-bottom: 20px;
         }
@@ -285,10 +285,27 @@
             font-size: 0.9rem;
             transition: all 0.2s ease;
         }
+.quick-btn.quick-bomb {
+    flex: 1;
+    max-width: calc(40% - 110px); /* Empêche de déborder sur la move-grid */
+}
+
+.quick-btn.quick-none {
+    flex: 1;
+    max-width: calc(40% - 110px); /* Ajuste la limite à droite de la move-grid */
+}
+
 
         .quick-bomb { background: #ff4757; color: white; }
         .quick-collect { background: #2ed573; color: white; }
         .quick-none { background: #747d8c; color: white; }
+
+        .quick-btn.quick-collect-left { grid-column: 1; grid-row: 2;background: #2ed573; color: white; }
+        .quick-btn.quick-collect-up { grid-column: 2;background: #2ed573; color: white; }
+        .quick-btn.quick-collect-right { grid-column: 3; grid-row: 2;background: #2ed573; color: white; }
+        .quick-btn.quick-collect-down { grid-column: 2; grid-row: 2;background: #2ed573; color: white; }
+
+
 
         .quick-btn:hover {
             transform: scale(1.05);
@@ -318,9 +335,15 @@
             </div>
 
             <div class="quick-actions">
-                <button class="quick-btn quick-bomb" onclick="quickAction('BOMB', 'UP')">💣 Bombe ↑</button>
-                <button class="quick-btn quick-collect" onclick="quickAction('COLLECT', 'LEFT')">💎 Collect ←</button>
-                <button class="quick-btn quick-collect" onclick="quickAction('COLLECT', 'RIGHT')">💎 Collect →</button>
+                <button class="quick-btn quick-bomb" onclick="quickAction('BOMB', 'UP')">💣 Bombe △</button>
+              
+            <div class="move-grid">
+                <button class="quick-btn quick-collect-left" onclick="quickAction('COLLECT', 'LEFT')">💎 Collect ◁</button>
+                <button class="quick-btn quick-collect-right" onclick="quickAction('COLLECT', 'RIGHT')">💎 Collect ▷</button>
+                <button class="quick-btn quick-collect-up" onclick="quickAction('COLLECT', 'UP')">💎 Collect △</button>
+                <button class="quick-btn quick-collect-down" onclick="quickAction('COLLECT', 'DOWN')">💎 Collect ▽</button>
+            </div>
+             
                 <button class="quick-btn quick-none" onclick="quickAction('NONE', 'STAY')">⭕ None ⏸️</button>
             </div>
             
