@@ -102,8 +102,20 @@ jobs:
             echo "✅ FLY_API_TOKEN is configured."
           fi
 
+      - name: Debug fly.toml
+        run: |
+          echo "=== Contenu du fichier fly.toml ==="
+          cat fly.toml
+          echo "=== Fin du fichier fly.toml ==="
+          echo "=== Vérification de l'existence du fichier ==="
+          ls -la fly.toml
+          echo "=== Apps disponibles ==="
+          flyctl apps list
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only
+        run: flyctl deploy --remote-only -a bot-war-api-tchikson
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
