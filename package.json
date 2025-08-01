@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node main.js",
     "dev": "nodemon main.js",
-    "test": "jest --verbose",
+    "test": "jest --verbose --forceExit",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test:coverage": "jest --coverage --forceExit",
     "test:ci": "jest --ci --coverage --watchAll=false",
     "docker:build": "docker build -t bot-war-api .",
     "docker:run": "docker run -p 3000:3000 bot-war-api",
@@ -30,7 +30,7 @@
     "nodemon": "^3.1.10",
     "supertest": "^7.1.4"
   },
-    "jest": {
+  "jest": {
     "testEnvironment": "node",
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
@@ -43,6 +43,10 @@
       "**/tests/**/*.test.js"
     ],
     "verbose": true
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   },
   "repository": {
     "type": "git",

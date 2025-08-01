@@ -28,10 +28,10 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        run: npm test -- --forceExit --detectOpenHandles
 
       - name: Generate coverage report
-        run: npm run test:coverage || npm test -- --coverage
+        run: npm run test:coverage -- --forceExit || npm test -- --coverage --forceExit
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
